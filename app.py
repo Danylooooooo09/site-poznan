@@ -42,6 +42,17 @@ def execute_query(connection, query: str, parameters: tuple = ()):
     return connection.execute(query, parameters)
 
 
+def execute_many(connection, query: str, parameters):
+    if is_postgres():
+        query = query.replace("?", "%s")
+
+    cursor = connection.cursor()
+    try:
+        cursor.executemany(query, parameters)
+    finally:
+        cursor.close()
+
+
 def initialize_database() -> None:
     if not is_postgres():
         database_path = current_app.config["DATABASE"]
@@ -98,7 +109,8 @@ def initialize_database() -> None:
             connection, "SELECT COUNT(*) AS count FROM beers"
         ).fetchone()["count"]
         if beer_count == 0:
-            connection.executemany(
+            execute_many(
+                connection,
                 """
                 INSERT INTO beers (name, abv_style, description, tags, sort_order)
                 VALUES (?, ?, ?, ?, ?)

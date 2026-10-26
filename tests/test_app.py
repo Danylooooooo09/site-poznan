@@ -6,7 +6,7 @@ from contextlib import closing
 from pathlib import Path
 from unittest.mock import patch
 
-from app import create_app
+from app import create_app, execute_many
 
 
 class WebsiteTest(unittest.TestCase):
@@ -81,6 +81,31 @@ class WebsiteTest(unittest.TestCase):
         with patch.dict(os.environ, {"VERCEL": "1", "DATABASE_URL": ""}):
             with self.assertRaisesRegex(RuntimeError, "persistent PostgreSQL"):
                 create_app({"TESTING": True, "DATABASE": ":memory:"})
+
+    def test_postgres_batch_insert_uses_cursor_executemany(self):
+        class FakeCursor:
+            def executemany(self, query, parameters):
+                self.query = query
+                self.parameters = list(parameters)
+
+            def close(self):
+                self.closed = True
+
+        class FakeConnection:
+            def cursor(self):
+                self.created_cursor = FakeCursor()
+                return self.created_cursor
+
+        connection = FakeConnection()
+        with self.app.app_context():
+            self.app.config["DATABASE_URL"] = "postgresql://test"
+            execute_many(connection, "INSERT INTO test VALUES (?)", [(1,), (2,)])
+
+        self.assertEqual(
+            connection.created_cursor.query, "INSERT INTO test VALUES (%s)"
+        )
+        self.assertEqual(connection.created_cursor.parameters, [(1,), (2,)])
+        self.assertTrue(connection.created_cursor.closed)
 
 
 if __name__ == "__main__":
