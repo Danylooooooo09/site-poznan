@@ -24,13 +24,26 @@ class WebsiteTest(unittest.TestCase):
     def tearDown(self):
         self.temp_dir.cleanup()
 
-    def test_homepage_renders_catalog_and_image(self):
+    def test_homepage_renders_catalog_hours_contacts_and_instagram_gallery(self):
         response = self.client.get("/")
 
         self.assertEqual(response.status_code, 200)
         self.assertIn(b"Jasne", response.data)
         self.assertIn(b"Wile\xc5\x84ska IPA", response.data)
         self.assertIn(b"/beer-label.webp", response.data)
+        self.assertIn("Понеділок".encode(), response.data)
+        self.assertIn("15:00 – 22:00".encode(), response.data)
+        self.assertIn("Неділя".encode(), response.data)
+        self.assertIn("13:00 – 04:00".encode(), response.data)
+        self.assertIn("ul. Święty Marcin 32, Poznań".encode(), response.data)
+        self.assertIn(
+            b"query=Castacraftowe+%C5%9Awi%C4%99ty+Marcin+32+Pozna%C5%84",
+            response.data,
+        )
+        self.assertIn(b"tel:+48797356568", response.data)
+        self.assertIn(b"https://www.instagram.com/castacraftowe/", response.data)
+        self.assertIn(b"/reel/De-FpWzN8al/", response.data)
+        self.assertIn(b"/p/De4JHgVtnHP/", response.data)
 
         image_response = self.client.get("/beer-label.webp")
         self.assertEqual(image_response.status_code, 200)

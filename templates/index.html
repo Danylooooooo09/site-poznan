@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Castacraftowe — Живе крафтове пиво | Poznań</title>
   <meta name="description" content="Castacraftowe — власна броварня і бар у Познані. Живе нефільтроване пиво з українською душею. Jasne, Porter, Pszeniczne, Blanche, IPA. Półwiejska 6." />
-  <meta name="theme-color" content="#0c1420" />
+  <meta name="theme-color" content="#0b120f" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Source+Sans+3:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     :root {
       --bg: #0c1420;
@@ -289,7 +289,7 @@
 
     /* GALLERY */
     .gallery-grid {
-      display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem;
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 326px), 1fr)); gap: 1rem;
       max-width: 1140px; margin: 0 auto;
     }
     .gallery-item {
@@ -302,6 +302,15 @@
     .gallery-item:hover { border-color: var(--gold); transform: scale(1.02); }
     .gallery-item img {
       width: 100%; height: 100%; object-fit: cover;
+    }
+    .gallery-item.instagram-embed {
+      display: block; aspect-ratio: auto; overflow: visible;
+      background: transparent; border: 0;
+    }
+    .gallery-item.instagram-embed:hover { border-color: transparent; transform: none; }
+    .instagram-embed .instagram-media {
+      width: 100% !important; max-width: 540px !important;
+      min-width: min(326px, 100%) !important; margin: 0 auto !important;
     }
 
     /* LOCATION */
@@ -400,7 +409,6 @@
       .about-grid, .loc-grid { grid-template-columns: 1fr; }
       .about-points { grid-template-columns: 1fr; }
       .analysis ul { grid-template-columns: 1fr; }
-      .gallery-grid { grid-template-columns: repeat(2, 1fr); }
       .hero-stats { gap: 2rem; flex-wrap: wrap; justify-content: center; }
       .nav-links {
         display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
@@ -415,7 +423,199 @@
     @media (max-width: 600px) {
       section { padding: 4rem 5%; }
       .hero-stats { flex-direction: column; gap: 1.1rem; }
-      .gallery-grid { grid-template-columns: 1fr 1fr; gap: 0.7rem; }
+      .gallery-grid { gap: 0.7rem; }
+    }
+
+    /* Modern visual system */
+    :root {
+      color-scheme: dark;
+      --bg: #0b120f;
+      --bg2: #111b16;
+      --card: #17231c;
+      --gold: #e0b94f;
+      --gold2: #f1cf6b;
+      --cream: #f4f1e7;
+      --text: #d9ded5;
+      --muted: #9ca99e;
+      --border: rgba(236, 240, 223, 0.1);
+      --radius: 22px;
+    }
+    html { scroll-padding-top: 6rem; }
+    body { font-family: 'DM Sans', system-ui, sans-serif; }
+    h1, h2, h3, .logo, .tagline, .footer-logo {
+      font-family: 'Space Grotesk', sans-serif;
+      letter-spacing: -0.035em;
+      text-transform: none;
+    }
+    :focus-visible { outline: 2px solid var(--gold2); outline-offset: 4px; }
+    nav {
+      top: 14px; right: 0; left: 0; width: min(1440px, calc(100% - 36px));
+      margin: 0 auto; padding: 0.8rem clamp(1.1rem, 3vw, 2.5rem);
+      background: rgba(13, 21, 17, 0.78); border: 1px solid var(--border);
+      border-radius: 999px; backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      transition: padding 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
+    }
+    nav.scrolled {
+      padding-top: 0.65rem; padding-bottom: 0.65rem;
+      background: rgba(13, 21, 17, 0.94);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+    }
+    .logo { font-size: 1.3rem; letter-spacing: -0.055em; }
+    .logo span { font-weight: 500; }
+    .nav-links { gap: clamp(1rem, 2vw, 1.8rem); }
+    .nav-links a {
+      font-size: 0.82rem; font-weight: 600; letter-spacing: 0.015em;
+      text-transform: none;
+    }
+    .nav-btn {
+      padding: 0.65rem 1.25rem; border-radius: 999px;
+      color: #14180f !important;
+    }
+    .burger { padding: 0.5rem; }
+    .hero {
+      min-height: min(900px, 100svh); padding: 9rem 6% 5.5rem;
+      isolation: isolate;
+      background:
+        radial-gradient(ellipse 48% 42% at 50% 36%, rgba(224, 185, 79, 0.13), transparent 100%),
+        radial-gradient(ellipse 75% 65% at 50% 0%, rgba(47, 92, 63, 0.24), transparent 78%),
+        linear-gradient(180deg, #0b120f, #111b16);
+    }
+    .hero::after {
+      content: ''; position: absolute; z-index: -1; inset: 9% 8% 8%;
+      border: 1px solid rgba(236, 240, 223, 0.055);
+      border-radius: 48% 52% 42% 58% / 43% 37% 63% 57%;
+      transform: rotate(-8deg); pointer-events: none;
+    }
+    .hero-badge {
+      color: var(--gold2); border-color: rgba(224, 185, 79, 0.28);
+      background: rgba(224, 185, 79, 0.06); padding: 0.55rem 1.1rem;
+      border-radius: 999px; letter-spacing: 0.12em;
+    }
+    .hero h1 {
+      font-size: clamp(3.4rem, 9.5vw, 8rem); line-height: 0.98;
+      margin-bottom: 1rem; letter-spacing: -0.075em;
+    }
+    .hero h1 span { font-weight: 500; }
+    .tagline {
+      font-size: clamp(0.95rem, 2vw, 1.15rem); font-weight: 600;
+      letter-spacing: 0.08em; margin-bottom: 1rem;
+    }
+    .hero-desc { max-width: 560px; font-size: clamp(1rem, 1.6vw, 1.15rem); }
+    .btn {
+      padding: 0.95rem 1.7rem; font-size: 0.88rem; letter-spacing: 0.025em;
+      border-radius: 999px;
+      transition: transform 0.25s, background 0.25s, box-shadow 0.25s;
+    }
+    .btn-gold { color: #14180f; }
+    .btn-gold:hover {
+      box-shadow: 0 12px 34px rgba(224, 185, 79, 0.2);
+    }
+    .btn-outline {
+      background: rgba(255,255,255,0.025); color: var(--cream);
+      border: 1px solid rgba(236,240,223,0.22);
+    }
+    .btn-outline:hover { background: rgba(255,255,255,0.09); transform: translateY(-2px); }
+    .hero-stats {
+      gap: clamp(2rem, 6vw, 5rem); margin-top: 4rem; padding: 1.4rem 2.2rem;
+      border: 1px solid var(--border); background: rgba(255,255,255,0.025);
+      border-radius: var(--radius);
+    }
+    .stat strong {
+      font-family: 'Space Grotesk', sans-serif; font-size: 2rem;
+      font-weight: 600; letter-spacing: -0.06em;
+    }
+    .stat span { font-size: 0.74rem; letter-spacing: 0.08em; }
+    section { padding: clamp(4.5rem, 8vw, 7.5rem) 6%; }
+    .section-head { max-width: 720px; margin-bottom: 3.5rem; }
+    .section-head .eyebrow { margin-bottom: 0.85rem; font-weight: 700; }
+    .section-head h2 {
+      font-size: clamp(2.15rem, 5vw, 3.6rem); line-height: 1.08;
+      margin-bottom: 1rem; letter-spacing: -0.065em;
+    }
+    .about-text h3 { font-size: clamp(1.5rem, 2.5vw, 2rem); }
+    .point {
+      padding: 1.3rem 1.4rem; border: 1px solid var(--border);
+      border-radius: 16px; transition: transform 0.25s, border-color 0.25s;
+    }
+    .point:hover { transform: translateY(-3px); border-color: rgba(224,185,79,0.35); }
+    .hours-card {
+      background: linear-gradient(145deg, rgba(28,43,34,0.96), rgba(19,30,23,0.96));
+      padding: clamp(1.5rem, 4vw, 2.2rem); border-radius: var(--radius);
+      box-shadow: 0 24px 70px rgba(0,0,0,0.18);
+    }
+    .hours-card h4, .analysis h3, .loc-info h3, .contact-form h3 {
+      font-family: 'Space Grotesk', sans-serif; letter-spacing: -0.02em;
+    }
+    .beer-top h3 { font-family: 'Space Grotesk', sans-serif; }
+    .hours-list li { padding: 0.58rem 0; border-bottom-color: rgba(255,255,255,0.07); }
+    .beer-card {
+      background: linear-gradient(145deg, rgba(23,35,28,0.96), rgba(16,25,20,0.96));
+      border-radius: var(--radius); overflow: hidden;
+    }
+    .beer-card:hover { border-color: rgba(224,185,79,0.5); }
+    .tag {
+      background: rgba(224,185,79,0.1); border-radius: 999px;
+    }
+    .snack, .review {
+      border-radius: var(--radius);
+    }
+    .snack:hover { border-color: rgba(224,185,79,0.4); }
+    .review:hover { border-color: rgba(224,185,79,0.35); }
+    .analysis {
+      background: linear-gradient(135deg, rgba(224,185,79,0.08), rgba(23,35,28,0.88));
+      border-color: rgba(224,185,79,0.22); border-radius: var(--radius);
+    }
+    .gallery-item { border-radius: var(--radius); }
+    .gallery-item:hover { transform: translateY(-3px); }
+    .gallery-item.instagram-embed { border-radius: 0; }
+    .info-icon { background: rgba(224,185,79,0.12); border-radius: 13px; }
+    .map-wrap { border-radius: var(--radius); }
+    .contact-form { border-radius: var(--radius); }
+    .form-group input, .form-group textarea { border-radius: 12px; }
+    .form-group input:focus, .form-group textarea:focus {
+      box-shadow: 0 0 0 3px rgba(224,185,79,0.1);
+    }
+    .cta {
+      background: radial-gradient(ellipse at 50% 100%, rgba(54,91,61,0.22), transparent 68%), var(--bg);
+    }
+    footer { background: #080e0b; }
+    .footer-logo { letter-spacing: -0.04em; }
+    @media (max-width: 900px) {
+      .about-grid { gap: 2.5rem; }
+      .about-points { grid-template-columns: 1fr 1fr; }
+      nav { backdrop-filter: none; -webkit-backdrop-filter: none; }
+      .nav-links {
+        background: rgba(11,18,15,0.97); backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+      }
+      .nav-links a { font-size: 1.25rem; }
+    }
+    @media (max-width: 600px) {
+      nav { top: 10px; width: calc(100% - 20px); }
+      section { padding: 4.5rem 5%; }
+      .hero { min-height: 92svh; padding: 8rem 5% 4rem; }
+      .hero h1 { font-size: clamp(3.25rem, 16vw, 5.5rem); }
+      .hero-badge { font-size: 0.62rem; letter-spacing: 0.08em; }
+      .hero-stats {
+        width: 100%; max-width: 340px; justify-content: space-around;
+        flex-direction: row; gap: 0.6rem; padding: 1rem 0.8rem;
+      }
+      .stat strong { font-size: 1.6rem; }
+      .stat span { font-size: 0.62rem; }
+      .about-points { grid-template-columns: 1fr 1fr; }
+      .hours-list li { font-size: 0.88rem; }
+      .analysis { padding: 1.5rem; }
+      .contact-form { padding: 1.4rem; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+      .reveal { opacity: 1; transform: none; }
     }
   </style>
 </head>
@@ -486,13 +686,19 @@
     <div class="hours-card reveal">
       <h4>Години роботи</h4>
       <ul class="hours-list">
-        <li><span class="day">Пн – Чт</span><span class="time">14:00 – 22:00</span></li>
-        <li><span class="day">П’ятниця</span><span class="time">12:00 – 00:00</span></li>
-        <li><span class="day">Субота</span><span class="time">12:00 – 02:00</span></li>
-        <li><span class="day">Неділя</span><span class="time">14:00 – 22:00</span></li>
+        <li><span class="day">Понеділок</span><span class="time">15:00 – 22:00</span></li>
+        <li><span class="day">Вівторок</span><span class="time">15:00 – 04:00</span></li>
+        <li><span class="day">Середа</span><span class="time">15:00 – 04:00</span></li>
+        <li><span class="day">Четвер</span><span class="time">15:00 – 04:00</span></li>
+        <li><span class="day">П’ятниця</span><span class="time">13:00 – 04:00</span></li>
+        <li><span class="day">Субота</span><span class="time">13:00 – 04:00</span></li>
+        <li><span class="day">Неділя</span><span class="time">13:00 – 04:00</span></li>
       </ul>
       <p style="margin-top: 1.4rem; font-size: 0.9rem; color: var(--muted);">
         Бар: <strong style="color: var(--cream);">Półwiejska 6, Poznań</strong>
+      </p>
+      <p style="margin-top: 0.4rem; font-size: 0.85rem; color: var(--muted);">
+        Час закриття о 04:00 вказаний для наступного дня.
       </p>
     </div>
   </div>
@@ -584,23 +790,28 @@
   <div class="section-head reveal">
     <div class="eyebrow">Атмосфера</div>
     <h2>Галерея</h2>
-    <p>Трохи нашого місця і пива</p>
+    <p>Фото та відео з нашого Instagram</p>
   </div>
   <div class="gallery-grid">
     <div class="gallery-item reveal">
       <img src="/beer-label.webp" alt="Castacraftowe Jasne" />
     </div>
-    <div class="gallery-item reveal" style="background: linear-gradient(135deg, #1a2838, #0f1a28);">
-      <span>Бар<br>Półwiejska 6</span>
+    <div class="gallery-item instagram-embed reveal">
+      <blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/reel/De-FpWzN8al/?utm_source=ig_embed&amp;utm_campaign=loading" data-instgrm-version="14">
+        <a href="https://www.instagram.com/reel/De-FpWzN8al/" target="_blank" rel="noopener">Переглянути відео в Instagram</a>
+      </blockquote>
     </div>
-    <div class="gallery-item reveal" style="background: linear-gradient(135deg, #1e2d3f, #121c2a);">
-      <span>Крани<br>з живим пивом</span>
-    </div>
-    <div class="gallery-item reveal" style="background: linear-gradient(135deg, #182636, #0e1722);">
-      <span>Броварня<br>Mosina</span>
+    <div class="gallery-item instagram-embed reveal">
+      <blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/p/De4JHgVtnHP/?utm_source=ig_embed&amp;utm_campaign=loading" data-instgrm-version="14">
+        <a href="https://www.instagram.com/p/De4JHgVtnHP/" target="_blank" rel="noopener">Переглянути фото в Instagram</a>
+      </blockquote>
     </div>
   </div>
+  <div style="text-align: center; margin-top: 2rem;">
+    <a href="https://www.instagram.com/castacraftowe/" target="_blank" rel="noopener" class="btn btn-outline">Відкрити Instagram</a>
+  </div>
 </section>
+<script async defer src="https://www.instagram.com/embed.js"></script>
 
 <!-- LOCATION -->
 <section class="location" id="location">
@@ -614,8 +825,17 @@
       <div class="info-row">
         <div class="info-icon">📍</div>
         <div class="info-text">
-          <strong>Адреса</strong>
+          <strong>Бар · Półwiejska 6</strong>
           <span>Półwiejska 6, 61-887 Poznań<br>Stare Miasto</span>
+        </div>
+      </div>
+      <div class="info-row">
+        <div class="info-icon">📍</div>
+        <div class="info-text">
+          <strong>Новий бар · Święty Marcin 32</strong>
+          <a href="https://www.google.com/maps/search/?api=1&amp;query=Castacraftowe+%C5%9Awi%C4%99ty+Marcin+32+Pozna%C5%84" target="_blank" rel="noopener">
+            ul. Święty Marcin 32, Poznań · Google Maps
+          </a>
         </div>
       </div>
       <div class="info-row">
@@ -639,12 +859,13 @@
           <a href="https://www.instagram.com/castacraftowe/" target="_blank" rel="noopener">@castacraftowe</a>
         </div>
       </div>
-      <div style="margin-top: 1.8rem;">
-        <a href="https://www.google.com/maps/search/?api=1&query=Castacraftowe+Półwiejska+6+Poznań" target="_blank" rel="noopener" class="btn btn-gold">Google Maps</a>
+      <div style="margin-top: 1.8rem; display: flex; flex-wrap: wrap; gap: 0.75rem;">
+        <a href="https://www.google.com/maps/search/?api=1&amp;query=Castacraftowe+Półwiejska+6+Poznań" target="_blank" rel="noopener" class="btn btn-gold">Półwiejska 6 · Maps</a>
+        <a href="https://www.google.com/maps/search/?api=1&amp;query=Castacraftowe+%C5%9Awi%C4%99ty+Marcin+32+Pozna%C5%84" target="_blank" rel="noopener" class="btn btn-outline">Święty Marcin 32 · Maps</a>
       </div>
     </div>
     <div class="map-wrap reveal">
-      <iframe src="https://maps.google.com/maps?q=Castacraftowe%20P%C3%B3%C5%82wiejska%206%20Pozna%C5%84&t=&z=16&ie=UTF8&iwloc=&output=embed" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+      <iframe title="Карта до Castacraftowe на Półwiejska 6" src="https://maps.google.com/maps?q=Castacraftowe%20P%C3%B3%C5%82wiejska%206%20Pozna%C5%84&t=&z=16&ie=UTF8&iwloc=&output=embed" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
     </div>
   </div>
 
