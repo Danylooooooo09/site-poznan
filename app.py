@@ -1,6 +1,9 @@
 import os
+import smtplib
 import sqlite3
+import ssl
 from contextlib import closing
+from email.message import EmailMessage
 from pathlib import Path
 
 from flask import Flask, current_app, redirect, render_template, request, url_for
@@ -82,10 +85,16 @@ COPY = {
         "form_consent": "Zgadzam się na zapisanie danych i kontakt w sprawie tego zgłoszenia.",
         "form_submit": "Wyślij zapytanie",
         "form_privacy": "Podajemy tylko dane potrzebne do obsługi zgłoszenia.",
-        "form_demo_notice": "Ważne: to wczesna wersja Spplot. Zgłoszenie zapisze się w systemie, ale nie jest jeszcze automatycznie wysyłane do wykonawców.",
+        "form_demo_notice": "Zgłoszenie zapisujemy w systemie. Powiadomienie e-mail trafia do właściciela po skonfigurowaniu poczty; zgłoszenia nie są automatycznie wysyłane do wykonawców.",
         "form_success": "Dziękujemy — Twoje zgłoszenie zostało zapisane.",
+        "form_email_sent": "Powiadomienie o zleceniu wysłaliśmy na e-mail właściciela.",
+        "form_email_not_configured": "Zgłoszenie zapisaliśmy, ale powiadomienia e-mail nie są jeszcze skonfigurowane. Skontaktuj się bezpośrednio przez WhatsApp lub Telegram.",
+        "form_email_failed": "Zgłoszenie zapisaliśmy, ale nie udało się wysłać powiadomienia e-mail. Skontaktuj się bezpośrednio przez WhatsApp lub Telegram.",
         "form_error": "Sprawdź formularz i uzupełnij wymagane pola.",
         "back_services": "Wróć do usług",
+        "contact_whatsapp": "WhatsApp",
+        "contact_telegram": "Telegram",
+        "direct_contact": "Wolisz napisać bezpośrednio?",
         "language_name": {"pl": "PL", "uk": "UA", "en": "EN"},
         "services": [
             {"id": "renovation", "icon": "✳", "name": "Remont i wykończenie", "description": "Malowanie, płytki, gładzie i odświeżenie mieszkania."},
@@ -161,10 +170,16 @@ COPY = {
         "form_consent": "Погоджуюся на збереження даних і зв’язок щодо цього запиту.",
         "form_submit": "Надіслати запит",
         "form_privacy": "Запитуємо лише дані, необхідні для обробки завдання.",
-        "form_demo_notice": "Важливо: це рання версія Spplot. Запит буде збережено в системі, але поки його не надсилають виконавцям автоматично.",
+        "form_demo_notice": "Ми зберігаємо запит у системі. Після налаштування пошти власник отримає сповіщення електронною поштою; запити не надсилаються виконавцям автоматично.",
         "form_success": "Дякуємо — ваш запит збережено.",
+        "form_email_sent": "Повідомлення про завдання надіслано на пошту власника.",
+        "form_email_not_configured": "Запит збережено, але сповіщення електронною поштою ще не налаштовані. Зв’яжіться напряму через WhatsApp або Telegram.",
+        "form_email_failed": "Запит збережено, але не вдалося надіслати сповіщення електронною поштою. Зв’яжіться напряму через WhatsApp або Telegram.",
         "form_error": "Перевірте форму та заповніть обов’язкові поля.",
         "back_services": "Повернутися до послуг",
+        "contact_whatsapp": "WhatsApp",
+        "contact_telegram": "Telegram",
+        "direct_contact": "Хочете написати напряму?",
         "language_name": {"pl": "PL", "uk": "UA", "en": "EN"},
         "services": [
             {"id": "renovation", "icon": "✳", "name": "Ремонт і оздоблення", "description": "Фарбування, плитка та оновлення оселі."},
@@ -240,10 +255,16 @@ COPY = {
         "form_consent": "I agree to storing my details and being contacted about this request.",
         "form_submit": "Send request",
         "form_privacy": "We only ask for details needed to handle your request.",
-        "form_demo_notice": "Note: Spplot is an early version. Your request will be stored, but is not yet automatically sent to service providers.",
+        "form_demo_notice": "Your request is saved in the system. An email notification is sent to the owner once email is configured; requests are not automatically forwarded to service providers.",
         "form_success": "Thanks — your request has been saved.",
+        "form_email_sent": "An email notification about your request was sent to the site owner.",
+        "form_email_not_configured": "Your request was saved, but email notifications are not configured yet. Contact us directly via WhatsApp or Telegram.",
+        "form_email_failed": "Your request was saved, but the email notification could not be sent. Contact us directly via WhatsApp or Telegram.",
         "form_error": "Please check the form and complete all required fields.",
         "back_services": "Back to services",
+        "contact_whatsapp": "WhatsApp",
+        "contact_telegram": "Telegram",
+        "direct_contact": "Prefer to message us directly?",
         "language_name": {"pl": "PL", "uk": "UA", "en": "EN"},
         "services": [
             {"id": "renovation", "icon": "✳", "name": "Renovation & finishing", "description": "Painting, tiling, plastering and home refreshes."},
@@ -275,6 +296,57 @@ def execute_query(connection, query: str, parameters: tuple = ()):
     if current_app.config["DATABASE_URL"]:
         query = query.replace("?", "%s")
     return connection.execute(query, parameters)
+
+
+def send_request_notification(
+    *, service_name: str, values: dict[str, str], language: str
+) -> str:
+    username = current_app.config["SMTP_USERNAME"]
+    password = current_app.config["SMTP_PASSWORD"]
+    if not username or not password:
+        current_app.logger.error(
+            "Service request email notification is not configured; "
+            "set SMTP_USERNAME and SMTP_PASSWORD."
+        )
+        return "not_configured"
+
+    message = EmailMessage()
+    message["Subject"] = f"New Spplot request: {service_name}"
+    message["From"] = current_app.config["MAIL_FROM"] or username
+    message["To"] = current_app.config["MAIL_TO"]
+    message.set_content(
+        "\n".join(
+            (
+                "A new service request was submitted on Spplot.",
+                "",
+                f"Language: {language}",
+                f"Service: {service_name}",
+                f"Location: {values['location']}",
+                f"Name: {values['name']}",
+                f"Contact: {values['contact']}",
+                "",
+                "Request details:",
+                values["details"],
+            )
+        )
+    )
+
+    try:
+        with smtplib.SMTP_SSL(
+            current_app.config["SMTP_HOST"],
+            current_app.config["SMTP_PORT"],
+            timeout=15,
+            context=ssl.create_default_context(),
+        ) as server:
+            server.login(username, password)
+            server.send_message(message)
+    except (smtplib.SMTPException, OSError):
+        current_app.logger.exception(
+            "Failed to send service request notification by email."
+        )
+        return "failed"
+
+    return "sent"
 
 
 def initialize_database() -> None:
@@ -334,6 +406,14 @@ def create_app(test_config: dict[str, object] | None = None) -> Flask:
         DATABASE=os.environ.get(
             "DATABASE_PATH", str(Path(app.instance_path) / "site.db")
         ),
+        SMTP_HOST=os.environ.get("SMTP_HOST", "smtp.gmail.com"),
+        SMTP_PORT=int(os.environ.get("SMTP_PORT", "465")),
+        SMTP_USERNAME=os.environ.get(
+            "SMTP_USERNAME", os.environ.get("MAIL_TO", "danildyad@gmail.com")
+        ),
+        SMTP_PASSWORD=os.environ.get("SMTP_PASSWORD", ""),
+        MAIL_FROM=os.environ.get("MAIL_FROM", ""),
+        MAIL_TO=os.environ.get("MAIL_TO", "danildyad@gmail.com"),
     )
     if test_config:
         app.config.update(test_config)
@@ -375,6 +455,11 @@ def create_app(test_config: dict[str, object] | None = None) -> Flask:
         }
         error = None
         sent = request.method == "GET" and request.args.get("sent") == "1"
+        email_status = (
+            request.args.get("email")
+            if request.args.get("email") in ("sent", "not_configured", "failed")
+            else None
+        )
 
         if request.method == "POST":
             if (
@@ -408,8 +493,19 @@ def create_app(test_config: dict[str, object] | None = None) -> Flask:
                         ),
                     )
                     connection.commit()
+                email_status = send_request_notification(
+                    service_name=services_by_id[service_id]["name"],
+                    values=values,
+                    language=lang,
+                )
                 return redirect(
-                    url_for("request_service", lang=lang, sent="1"), code=303
+                    url_for(
+                        "request_service",
+                        lang=lang,
+                        sent="1",
+                        email=email_status,
+                    ),
+                    code=303,
                 )
 
         status_code = 400 if error else 200
@@ -421,6 +517,7 @@ def create_app(test_config: dict[str, object] | None = None) -> Flask:
                 values=values,
                 error=error,
                 sent=sent,
+                email_status=email_status if sent else None,
                 consented=not sent and request.form.get("consent") == "yes",
             ),
             status_code,

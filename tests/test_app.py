@@ -1,4 +1,5 @@
 import os
+import smtplib
 import sqlite3
 import tempfile
 import unittest
@@ -33,6 +34,8 @@ class WebsiteTest(unittest.TestCase):
         self.assertNotIn(b"Splot", response.data)
         self.assertIn("Dobry fachowiec".encode(), response.data)
         self.assertIn("Hydraulik".encode(), response.data)
+        self.assertIn(b"https://wa.me/48572394937", response.data)
+        self.assertIn(b"https://t.me/+48572394937", response.data)
         self.assertNotIn(b"Castacraftowe", response.data)
         self.assertNotIn(b"Jasne", response.data)
 
@@ -98,6 +101,7 @@ class WebsiteTest(unittest.TestCase):
         success_response = self.client.get(response.headers["Location"])
         self.assertEqual(success_response.status_code, 200)
         self.assertIn("ваш запит збережено".encode(), success_response.data)
+        self.assertIn("ще не налаштовані".encode(), success_response.data)
         self.client.get(response.headers["Location"])
         with closing(sqlite3.connect(self.database_path)) as connection:
             row = connection.execute(
@@ -116,6 +120,68 @@ class WebsiteTest(unittest.TestCase):
                 "danylo@example.com",
             ),
         )
+        with closing(sqlite3.connect(self.database_path)) as connection:
+            count = connection.execute(
+                "SELECT COUNT(*) FROM service_requests"
+            ).fetchone()[0]
+        self.assertEqual(count, 1)
+
+    def test_request_sends_email_when_smtp_is_configured(self):
+        self.app.config.update(
+            SMTP_USERNAME="owner@example.com",
+            SMTP_PASSWORD="app-password",
+            MAIL_TO="danildyad@gmail.com",
+        )
+        with patch("app.smtplib.SMTP_SSL") as smtp:
+            response = self.client.post(
+                "/request?lang=en",
+                data={
+                    "category": "plumbing",
+                    "location": "Jeżyce, Poznań",
+                    "details": "Leaking kitchen tap.",
+                    "name": "Danylo",
+                    "contact": "+48 572 394 937",
+                    "consent": "yes",
+                },
+            )
+
+        self.assertEqual(response.status_code, 303)
+        self.assertIn("email=sent", response.headers["Location"])
+        smtp.assert_called_once()
+        smtp.return_value.__enter__.return_value.login.assert_called_once_with(
+            "owner@example.com", "app-password"
+        )
+        email = smtp.return_value.__enter__.return_value.send_message.call_args.args[0]
+        self.assertEqual(email["To"], "danildyad@gmail.com")
+        self.assertIn("Danylo", email.get_content())
+        success_response = self.client.get(response.headers["Location"])
+        self.assertIn("was sent to the site owner".encode(), success_response.data)
+
+    def test_smtp_failure_is_reported_without_losing_saved_request(self):
+        self.app.config.update(
+            SMTP_USERNAME="owner@example.com",
+            SMTP_PASSWORD="invalid-password",
+        )
+        with patch(
+            "app.smtplib.SMTP_SSL",
+            side_effect=smtplib.SMTPAuthenticationError(535, b"Authentication failed"),
+        ):
+            response = self.client.post(
+                "/request?lang=en",
+                data={
+                    "category": "plumbing",
+                    "location": "Poznań",
+                    "details": "Leaking tap.",
+                    "name": "Danylo",
+                    "contact": "danylo@example.com",
+                    "consent": "yes",
+                },
+            )
+
+        self.assertEqual(response.status_code, 303)
+        self.assertIn("email=failed", response.headers["Location"])
+        failure_response = self.client.get(response.headers["Location"])
+        self.assertIn("could not be sent".encode(), failure_response.data)
         with closing(sqlite3.connect(self.database_path)) as connection:
             count = connection.execute(
                 "SELECT COUNT(*) FROM service_requests"

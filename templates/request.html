@@ -22,6 +22,12 @@
       <span class="message-mark">✓</span>
       <p>{{ copy.form_success }}</p>
     </div>
+    {% if email_status %}
+    <div class="form-message {% if email_status == 'sent' %}success-message{% else %}error-message{% endif %}" role="status">
+      <span class="message-mark">{% if email_status == 'sent' %}✓{% else %}!{% endif %}</span>
+      <p>{{ copy['form_email_' ~ email_status] }}</p>
+    </div>
+    {% endif %}
     {% endif %}
     {% if error %}
     <div class="form-message error-message" role="alert">
