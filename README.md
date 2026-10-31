@@ -1,6 +1,6 @@
-# Splot — local services MVP
+# Spplot — local services MVP
 
-Splot is a three-page lead-generation prototype for home services in Poznań and
+Spplot is a three-page lead-generation prototype for home services in Poznań and
 nearby towns. Its interface is available in Polish, Ukrainian, and English:
 
 - `/` — landing page and introduction

@@ -20,13 +20,13 @@ SERVICE_IDS = (
 
 COPY = {
     "pl": {
-        "site_title": "Splot — lokalni fachowcy w Poznaniu",
+        "site_title": "Spplot — lokalni fachowcy w Poznaniu",
         "nav_label": "Główna nawigacja",
         "nav_menu": "Otwórz menu",
         "language_label": "Wybierz język",
         "back_top": "Wróć na górę",
         "form_contact_group": "KONTAKT",
-        "meta_description": "Splot łączy mieszkańców Poznania ze sprawdzonymi fachowcami od usług domowych i remontów.",
+        "meta_description": "Spplot łączy mieszkańców Poznania ze sprawdzonymi fachowcami od usług domowych i remontów.",
         "nav_home": "Start",
         "nav_services": "Usługi",
         "nav_how": "Jak działamy",
@@ -47,7 +47,7 @@ COPY = {
         "orbit_chip": "Lokalnie",
         "intro_kicker": "DOBRZE SIĘ SKŁADA",
         "intro_title": "Nie kolejna lista numerów.",
-        "intro_text": "Splot to prosty początek: mówisz, co jest do zrobienia, a my budujemy miejsce, w którym lokalne zlecenia spotykają się z dobrymi fachowcami.",
+        "intro_text": "Spplot to prosty początek: mówisz, co jest do zrobienia, a my budujemy miejsce, w którym lokalne zlecenia spotykają się z dobrymi fachowcami.",
         "steps_title": "Trzy kroki. Bez labiryntu.",
         "step_one_title": "Wybierz usługę",
         "step_one_text": "Od drobnej naprawy po większy remont — zacznij od tego, czego potrzebujesz.",
@@ -82,7 +82,7 @@ COPY = {
         "form_consent": "Zgadzam się na zapisanie danych i kontakt w sprawie tego zgłoszenia.",
         "form_submit": "Wyślij zapytanie",
         "form_privacy": "Podajemy tylko dane potrzebne do obsługi zgłoszenia.",
-        "form_demo_notice": "Ważne: to wczesna wersja Splot. Zgłoszenie zapisze się w systemie, ale nie jest jeszcze automatycznie wysyłane do wykonawców.",
+        "form_demo_notice": "Ważne: to wczesna wersja Spplot. Zgłoszenie zapisze się w systemie, ale nie jest jeszcze automatycznie wysyłane do wykonawców.",
         "form_success": "Dziękujemy — Twoje zgłoszenie zostało zapisane.",
         "form_error": "Sprawdź formularz i uzupełnij wymagane pola.",
         "back_services": "Wróć do usług",
@@ -99,13 +99,13 @@ COPY = {
         ],
     },
     "uk": {
-        "site_title": "Splot — місцеві майстри в Познані",
+        "site_title": "Spplot — місцеві майстри в Познані",
         "nav_label": "Головна навігація",
         "nav_menu": "Відкрити меню",
         "language_label": "Оберіть мову",
         "back_top": "На початок",
         "form_contact_group": "КОНТАКТ",
-        "meta_description": "Splot допомагає мешканцям Познані знайти фахівців для домашніх робіт і ремонту.",
+        "meta_description": "Spplot допомагає мешканцям Познані знайти фахівців для домашніх робіт і ремонту.",
         "nav_home": "Головна",
         "nav_services": "Послуги",
         "nav_how": "Як це працює",
@@ -126,7 +126,7 @@ COPY = {
         "orbit_chip": "Поруч",
         "intro_kicker": "УСЕ СКЛАДАЄТЬСЯ",
         "intro_title": "Не черговий список номерів.",
-        "intro_text": "Splot — простий початок: ви розповідаєте, що потрібно зробити, а ми створюємо місце, де місцеві завдання зустрічаються з хорошими майстрами.",
+        "intro_text": "Spplot — простий початок: ви розповідаєте, що потрібно зробити, а ми створюємо місце, де місцеві завдання зустрічаються з хорошими майстрами.",
         "steps_title": "Три кроки. Без лабіринтів.",
         "step_one_title": "Оберіть послугу",
         "step_one_text": "Від невеликого ремонту до повного оновлення — почніть із того, що потрібно вам.",
@@ -161,7 +161,7 @@ COPY = {
         "form_consent": "Погоджуюся на збереження даних і зв’язок щодо цього запиту.",
         "form_submit": "Надіслати запит",
         "form_privacy": "Запитуємо лише дані, необхідні для обробки завдання.",
-        "form_demo_notice": "Важливо: це рання версія Splot. Запит буде збережено в системі, але поки його не надсилають виконавцям автоматично.",
+        "form_demo_notice": "Важливо: це рання версія Spplot. Запит буде збережено в системі, але поки його не надсилають виконавцям автоматично.",
         "form_success": "Дякуємо — ваш запит збережено.",
         "form_error": "Перевірте форму та заповніть обов’язкові поля.",
         "back_services": "Повернутися до послуг",
@@ -178,13 +178,13 @@ COPY = {
         ],
     },
     "en": {
-        "site_title": "Splot — local professionals in Poznań",
+        "site_title": "Spplot — local professionals in Poznań",
         "nav_label": "Main navigation",
         "nav_menu": "Open menu",
         "language_label": "Choose language",
         "back_top": "Back to top",
         "form_contact_group": "CONTACT",
-        "meta_description": "Splot helps people in Poznań find local professionals for home services and renovation.",
+        "meta_description": "Spplot helps people in Poznań find local professionals for home services and renovation.",
         "nav_home": "Home",
         "nav_services": "Services",
         "nav_how": "How it works",
@@ -205,7 +205,7 @@ COPY = {
         "orbit_chip": "Nearby",
         "intro_kicker": "THINGS FALL INTO PLACE",
         "intro_title": "Not another list of numbers.",
-        "intro_text": "Splot is a simpler start: tell us what needs doing, and we're building a place where local jobs meet good people.",
+        "intro_text": "Spplot is a simpler start: tell us what needs doing, and we're building a place where local jobs meet good people.",
         "steps_title": "Three steps. No maze.",
         "step_one_title": "Pick a service",
         "step_one_text": "From a small repair to a full refresh, start with what you need.",
@@ -240,7 +240,7 @@ COPY = {
         "form_consent": "I agree to storing my details and being contacted about this request.",
         "form_submit": "Send request",
         "form_privacy": "We only ask for details needed to handle your request.",
-        "form_demo_notice": "Note: Splot is an early version. Your request will be stored, but is not yet automatically sent to service providers.",
+        "form_demo_notice": "Note: Spplot is an early version. Your request will be stored, but is not yet automatically sent to service providers.",
         "form_success": "Thanks — your request has been saved.",
         "form_error": "Please check the form and complete all required fields.",
         "back_services": "Back to services",
@@ -354,7 +354,7 @@ def create_app(test_config: dict[str, object] | None = None) -> Flask:
     def services():
         lang = get_language()
         return render_page(
-            "services.html", lang=lang, page_title=f"{COPY[lang]['services_page_title']} — Splot"
+            "services.html", lang=lang, page_title=f"{COPY[lang]['services_page_title']} — Spplot"
         )
 
     @app.route("/request", methods=["GET", "POST"])
@@ -417,7 +417,7 @@ def create_app(test_config: dict[str, object] | None = None) -> Flask:
             render_page(
                 "request.html",
                 lang=lang,
-                page_title=f"{copy['request_title']} — Splot",
+                page_title=f"{copy['request_title']} — Spplot",
                 values=values,
                 error=error,
                 sent=sent,
@@ -439,5 +439,5 @@ app = create_app()
 
 
 if __name__ == "__main__":
-    print("Splot jest dostępny pod adresem: http://127.0.0.1:5000")
+    print("Spplot jest dostępny pod adresem: http://127.0.0.1:5000")
     app.run(host="127.0.0.1", port=5000)

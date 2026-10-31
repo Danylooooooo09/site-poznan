@@ -29,7 +29,8 @@ class WebsiteTest(unittest.TestCase):
         response = self.client.get("/")
 
         self.assertEqual(response.status_code, 200)
-        self.assertIn(b"splot", response.data)
+        self.assertIn(b"Spplot", response.data)
+        self.assertNotIn(b"Splot", response.data)
         self.assertIn("Dobry fachowiec".encode(), response.data)
         self.assertIn("Hydraulik".encode(), response.data)
         self.assertNotIn(b"Castacraftowe", response.data)
