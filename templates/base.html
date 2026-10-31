@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="{{ lang }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f1efe6">
+  <meta name="description" content="{{ copy.meta_description }}">
+  <title>{{ page_title }}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="{{ url_for('index', lang=lang) }}" aria-label="Splot — {{ copy.nav_home }}">
+      <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+      <span class="brand-name">splot<span class="brand-period">.</span></span>
+    </a>
+    <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="{{ copy.nav_menu }}">
+      <span></span><span></span>
+    </button>
+    <nav class="site-nav" id="site-nav" aria-label="{{ copy.nav_label }}">
+      <a href="{{ url_for('index', lang=lang) }}">{{ copy.nav_home }}</a>
+      <a href="{{ url_for('services', lang=lang) }}">{{ copy.nav_services }}</a>
+      <a href="{{ url_for('index', lang=lang) }}#how-it-works">{{ copy.nav_how }}</a>
+      <a class="nav-cta" href="{{ url_for('request_service', lang=lang) }}">{{ copy.nav_request }} <span aria-hidden="true">↗</span></a>
+      <div class="language-switch" aria-label="{{ copy.language_label }}">
+        {% for language in ("pl", "uk", "en") %}
+        <a href="{{ url_for(request.endpoint, lang=language, category=request.args.get('category')) }}" lang="{{ language }}" {% if lang == language %}aria-current="page"{% endif %}>{{ copy.language_name[language] }}</a>
+        {% endfor %}
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-top">
+      <a class="brand footer-brand" href="{{ url_for('index', lang=lang) }}">
+        <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span class="brand-name">splot<span class="brand-period">.</span></span>
+      </a>
+      <p>{{ copy.footer_line }}</p>
+      <a class="footer-up" href="#top" aria-label="{{ copy.back_top }}">↑</a>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Splot · Poznań</span>
+      <span>PL <b>·</b> UA <b>·</b> EN</span>
+    </div>
+  </footer>
+
+  <script>
+    const menuButton = document.querySelector('.menu-toggle');
+    const siteNav = document.querySelector('.site-nav');
+    menuButton.addEventListener('click', () => {
+      const isOpen = menuButton.getAttribute('aria-expanded') === 'true';
+      menuButton.setAttribute('aria-expanded', String(!isOpen));
+      siteNav.classList.toggle('is-open', !isOpen);
+    });
+    siteNav.querySelectorAll('a').forEach((link) => {
+      link.addEventListener('click', () => {
+        menuButton.setAttribute('aria-expanded', 'false');
+        siteNav.classList.remove('is-open');
+      });
+    });
+  </script>
+</body>
+</html>

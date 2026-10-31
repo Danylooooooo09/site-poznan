@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="page-hero" id="top">
+  <p class="eyebrow"><span class="eyebrow-dot"></span>{{ copy.services_page_kicker }} · POZNAŃ</p>
+  <div class="page-title-row">
+    <h1>{{ copy.services_page_title }}</h1>
+    <p>{{ copy.services_page_text }}</p>
+  </div>
+  <span class="page-hero-mark" aria-hidden="true">S.</span>
+</section>
+
+<section class="directory-section">
+  <div class="directory-meta"><span>{{ copy.all_services }}</span><span>08 — POZNAŃ</span></div>
+  <div class="service-grid directory-grid">
+    {% for service in copy.services %}
+    <a class="service-card" href="{{ url_for('request_service', lang=lang, category=service.id) }}">
+      <span class="service-index">0{{ loop.index }}</span>
+      <span class="service-icon icon-{{ loop.index }}">{{ service.icon }}</span>
+      <span class="service-title">{{ service.name }}</span>
+      <span class="service-description">{{ service.description }}</span>
+      <span class="service-arrow" aria-hidden="true">↗</span>
+    </a>
+    {% endfor %}
+  </div>
+  <p class="directory-footnote">{{ copy.services_text }}</p>
+</section>
+
+<section class="closing-cta compact-cta">
+  <p class="eyebrow">{{ copy.request_kicker }}</p>
+  <h2>{{ copy.cta_title }}</h2>
+  <p>{{ copy.cta_text }}</p>
+  <a class="button button-light" href="{{ url_for('request_service', lang=lang) }}">{{ copy.hero_cta }} <span aria-hidden="true">↗</span></a>
+</section>
+{% endblock %}

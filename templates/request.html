@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="page-hero request-hero" id="top">
+  <p class="eyebrow"><span class="eyebrow-dot"></span>{{ copy.request_kicker }} · POZNAŃ</p>
+  <div class="page-title-row">
+    <h1>{{ copy.request_title }}</h1>
+    <p>{{ copy.request_text }}</p>
+  </div>
+  <span class="page-hero-mark" aria-hidden="true">→</span>
+</section>
+
+<section class="request-section">
+  <div class="request-aside">
+    <span class="aside-large-number">01<span>/01</span></span>
+    <p>{{ copy.form_privacy }}</p>
+    <a class="text-link" href="{{ url_for('services', lang=lang) }}">← {{ copy.back_services }}</a>
+  </div>
+  <div class="request-main">
+    {% if sent %}
+    <div class="form-message success-message" role="status">
+      <span class="message-mark">✓</span>
+      <p>{{ copy.form_success }}</p>
+    </div>
+    {% endif %}
+    {% if error %}
+    <div class="form-message error-message" role="alert">
+      <span class="message-mark">!</span>
+      <p>{{ error }}</p>
+    </div>
+    {% endif %}
+    <div class="demo-notice"><span>i</span><p>{{ copy.form_demo_notice }}</p></div>
+    <form class="request-form" method="post" action="{{ url_for('request_service', lang=lang) }}">
+      <input type="hidden" name="lang" value="{{ lang }}">
+      <label class="form-field">
+        <span><b>01</b>{{ copy.form_category }}</span>
+        <select name="category" required>
+          <option value="" disabled {% if not values.category %}selected{% endif %}>{{ copy.form_choose }}</option>
+          {% for service in copy.services %}
+          <option value="{{ service.id }}" {% if values.category == service.id %}selected{% endif %}>{{ service.name }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label class="form-field">
+        <span><b>02</b>{{ copy.form_location }}</span>
+        <input name="location" type="text" maxlength="120" required autocomplete="address-level2" placeholder="{{ copy.form_location_placeholder }}" value="{{ values.location }}">
+      </label>
+      <label class="form-field">
+        <span><b>03</b>{{ copy.form_details }}</span>
+        <textarea name="details" maxlength="3000" rows="5" required placeholder="{{ copy.form_details_placeholder }}">{{ values.details }}</textarea>
+      </label>
+      <div class="form-divider"><span>04</span><span>{{ copy.form_contact_group }}</span></div>
+      <div class="form-row">
+        <label class="form-field">
+          <span>{{ copy.form_name }}</span>
+          <input name="name" type="text" maxlength="100" required autocomplete="name" value="{{ values.name }}">
+        </label>
+        <label class="form-field">
+          <span>{{ copy.form_contact }}</span>
+          <input name="contact" type="text" maxlength="200" required autocomplete="email" placeholder="{{ copy.form_contact_placeholder }}" value="{{ values.contact }}">
+        </label>
+      </div>
+      <label class="consent-field">
+        <input name="consent" type="checkbox" value="yes" required {% if consented %}checked{% endif %}>
+        <span>{{ copy.form_consent }}</span>
+      </label>
+      <div class="form-submit-row">
+        <span>{{ copy.form_privacy }}</span>
+        <button class="button button-dark" type="submit">{{ copy.form_submit }} <span aria-hidden="true">↗</span></button>
+      </div>
+    </form>
+  </div>
+</section>
+{% endblock %}

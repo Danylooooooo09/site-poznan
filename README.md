@@ -1,6 +1,19 @@
-# Castacraftowe
+# Splot — local services MVP
 
-Flask site with a SQLite-backed beer catalog and contact form.
+Splot is a three-page lead-generation prototype for home services in Poznań and
+nearby towns. Its interface is available in Polish, Ukrainian, and English:
+
+- `/` — landing page and introduction
+- `/services` — local home-service categories
+- `/request` — request form; accepts a service category as `?category=plumbing`
+
+The first release focuses on renovation, plumbing, electrical work, cleaning,
+moving, furniture assembly, garden work, and other local jobs. It does not yet
+have a provider directory or automatically forward requests to professionals.
+The form states this clearly and saves submitted requests in the database.
+Before accepting real customer data publicly, add and link a privacy notice
+covering the data controller, purpose and legal basis, retention period, and
+the customer's rights.
 
 ## Run locally
 
@@ -11,22 +24,24 @@ pip install -r requirements.txt
 python3 app.py
 ```
 
-Open <http://127.0.0.1:5000>. On first run, the app creates
-`instance/site.db` and seeds the beer catalog. Contact form submissions are
-saved in the same database. Set `DATABASE_PATH` to use a different SQLite file.
+Open <http://127.0.0.1:5000>. By default, the app creates
+`instance/site.db`; set `DATABASE_PATH` to select another SQLite database.
+Set `DATABASE_URL` to use PostgreSQL. Existing beer-catalog and contact-message
+tables are left untouched; new service requests are written to
+`service_requests`.
 
-Run tests with `python3 -m unittest discover -s tests`.
+Run tests with:
+
+```sh
+python3 -m unittest discover -s tests -v
+```
 
 ## Deploy to Vercel
 
-Import `Danylooooooo09/site-poznan` as a Vercel project. Vercel detects the Flask
-app in `app.py` automatically and serves files in `public/` from its CDN.
+The app is configured for the existing Vercel project connected to this GitHub
+repository. Configure a persistent PostgreSQL connection as `DATABASE_URL` in
+Vercel Production and Preview environments. Vercel's function filesystem is
+ephemeral, so the app rejects SQLite in the Vercel environment.
 
-Before deploying, create a PostgreSQL database using a Vercel Marketplace
-integration such as Neon, then add its connection string as the `DATABASE_URL`
-environment variable for Production and Preview. Vercel's function filesystem
-is ephemeral, so SQLite is intentionally rejected in the Vercel environment.
-The app creates the tables and seeds the beer catalog on its first start.
-
-The `origin` GitHub remote is already configured. Commit and push changes to
-trigger a Vercel deployment after importing the repository.
+Pushing a commit to the connected branch triggers a deployment. This MVP does
+not yet email requests or distribute them to service providers.

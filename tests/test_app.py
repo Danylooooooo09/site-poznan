@@ -6,7 +6,7 @@ from contextlib import closing
 from pathlib import Path
 from unittest.mock import patch
 
-from app import create_app, execute_many
+from app import create_app, execute_query
 
 
 class WebsiteTest(unittest.TestCase):
@@ -17,6 +17,7 @@ class WebsiteTest(unittest.TestCase):
             {
                 "TESTING": True,
                 "DATABASE": str(self.database_path),
+                "DATABASE_URL": "",
             }
         )
         self.client = self.app.test_client()
@@ -24,101 +25,221 @@ class WebsiteTest(unittest.TestCase):
     def tearDown(self):
         self.temp_dir.cleanup()
 
-    def test_homepage_renders_catalog_hours_contacts_and_instagram_gallery(self):
+    def test_homepage_renders_new_service_marketplace(self):
         response = self.client.get("/")
 
         self.assertEqual(response.status_code, 200)
-        self.assertIn(b"Jasne", response.data)
-        self.assertIn(b"Wile\xc5\x84ska IPA", response.data)
-        self.assertIn(b"/beer-label.webp", response.data)
-        self.assertIn("Понеділок".encode(), response.data)
-        self.assertIn("15:00 – 22:00".encode(), response.data)
-        self.assertIn("Неділя".encode(), response.data)
-        self.assertIn("13:00 – 04:00".encode(), response.data)
-        self.assertIn("ul. Święty Marcin 32, Poznań".encode(), response.data)
-        self.assertIn(
-            b"query=Castacraftowe+%C5%9Awi%C4%99ty+Marcin+32+Pozna%C5%84",
-            response.data,
-        )
-        self.assertIn(b"tel:+48797356568", response.data)
-        self.assertIn(b"https://www.instagram.com/castacraftowe/", response.data)
-        self.assertIn(b"/reel/De-FpWzN8al/", response.data)
-        self.assertIn(b"/p/De4JHgVtnHP/", response.data)
+        self.assertIn(b"splot", response.data)
+        self.assertIn("Dobry fachowiec".encode(), response.data)
+        self.assertIn("Hydraulik".encode(), response.data)
+        self.assertNotIn(b"Castacraftowe", response.data)
+        self.assertNotIn(b"Jasne", response.data)
 
-        image_response = self.client.get("/beer-label.webp")
-        self.assertEqual(image_response.status_code, 200)
-        image_response.close()
+    def test_removed_brewery_pages_and_assets_are_not_served(self):
+        self.assertEqual(self.client.get("/index").status_code, 404)
+        self.assertEqual(self.client.get("/beer-label.webp").status_code, 404)
 
-    def test_contact_form_saves_message(self):
+    def test_services_page_lists_local_home_services(self):
+        response = self.client.get("/services?lang=pl")
+
+        self.assertEqual(response.status_code, 200)
+        for service_name in (
+            "Remont i wykończenie",
+            "Hydraulik",
+            "Elektryk",
+            "Sprzątanie",
+            "Przeprowadzki",
+            "Meble i montaż",
+            "Ogród",
+        ):
+            self.assertIn(service_name.encode(), response.data)
+
+    def test_all_pages_render_in_ukrainian_and_english(self):
+        expected_by_language = {
+            "uk": {
+                "/": "Добрий майстер",
+                "/services": "КАТАЛОГ ПОСЛУГ",
+                "/request": "Розкажіть, що сталося",
+            },
+            "en": {
+                "/": "A good pro",
+                "/services": "SERVICE DIRECTORY",
+                "/request": "Tell us what you need",
+            },
+        }
+        for lang, pages in expected_by_language.items():
+            for path, expected_text in pages.items():
+                with self.subTest(lang=lang, path=path):
+                    response = self.client.get(f"{path}?lang={lang}")
+                    self.assertEqual(response.status_code, 200)
+                    self.assertIn(expected_text.encode(), response.data)
+
+    def test_request_form_preselects_category_and_saves_submission(self):
+        form_response = self.client.get("/request?lang=uk&category=plumbing")
+        self.assertEqual(form_response.status_code, 200)
+        self.assertIn(b'<option value="plumbing" selected>', form_response.data)
+        self.assertIn(b"/request?lang=en&amp;category=plumbing", form_response.data)
+
         response = self.client.post(
-            "/contact",
+            "/request?lang=uk",
             data={
+                "lang": "uk",
+                "category": "plumbing",
+                "location": "Jeżyce, Poznań",
+                "details": "Przecieka kran w kuchni.",
                 "name": "Danylo",
                 "contact": "danylo@example.com",
-                "message": "Please reserve a table.",
+                "consent": "yes",
             },
         )
 
-        self.assertEqual(response.status_code, 200)
-        self.assertIn("Ваше повідомлення збережено".encode(), response.data)
+        self.assertEqual(response.status_code, 303)
+        success_response = self.client.get(response.headers["Location"])
+        self.assertEqual(success_response.status_code, 200)
+        self.assertIn("ваш запит збережено".encode(), success_response.data)
+        self.client.get(response.headers["Location"])
         with closing(sqlite3.connect(self.database_path)) as connection:
             row = connection.execute(
-                "SELECT name, contact, message FROM contact_messages"
+                """
+                SELECT category, location, details, name, contact
+                FROM service_requests
+                """
             ).fetchone()
         self.assertEqual(
             row,
-            ("Danylo", "danylo@example.com", "Please reserve a table."),
+            (
+                "plumbing",
+                "Jeżyce, Poznań",
+                "Przecieka kran w kuchni.",
+                "Danylo",
+                "danylo@example.com",
+            ),
         )
+        with closing(sqlite3.connect(self.database_path)) as connection:
+            count = connection.execute(
+                "SELECT COUNT(*) FROM service_requests"
+            ).fetchone()[0]
+        self.assertEqual(count, 1)
 
-    def test_invalid_contact_form_is_not_saved(self):
+    def test_invalid_request_is_rejected_and_not_saved(self):
         response = self.client.post(
-            "/contact",
-            data={"name": "Danylo", "contact": "danylo@example.com"},
+            "/request",
+            data={
+                "category": "not-a-service",
+                "location": "Poznań",
+                "details": "Need a repair.",
+                "name": "Danylo",
+                "contact": "danylo@example.com",
+            },
         )
 
         self.assertEqual(response.status_code, 400)
-        self.assertIn("Вкажіть повідомлення".encode(), response.data)
+        self.assertIn("Sprawdź formularz".encode(), response.data)
         with closing(sqlite3.connect(self.database_path)) as connection:
             count = connection.execute(
-                "SELECT COUNT(*) FROM contact_messages"
+                "SELECT COUNT(*) FROM service_requests"
             ).fetchone()[0]
         self.assertEqual(count, 0)
 
+    def test_request_requires_explicit_consent(self):
+        response = self.client.post(
+            "/request",
+            data={
+                "category": "plumbing",
+                "location": "Poznań",
+                "details": "Need a repair.",
+                "name": "Danylo",
+                "contact": "danylo@example.com",
+            },
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertIn(b'name="consent" type="checkbox" value="yes" required', response.data)
+        with closing(sqlite3.connect(self.database_path)) as connection:
+            count = connection.execute(
+                "SELECT COUNT(*) FROM service_requests"
+            ).fetchone()[0]
+        self.assertEqual(count, 0)
+
+    def test_request_preserves_consent_when_other_validation_fails(self):
+        response = self.client.post(
+            "/request",
+            data={
+                "category": "plumbing",
+                "location": "Poznań",
+                "details": "Need a repair.",
+                "contact": "danylo@example.com",
+                "consent": "yes",
+            },
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertIn(b'value="yes" required checked', response.data)
+
     def test_health_check_verifies_database_connection(self):
         response = self.client.get("/health")
-
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json, {"status": "ok"})
 
     def test_vercel_requires_persistent_database(self):
         with patch.dict(os.environ, {"VERCEL": "1", "DATABASE_URL": ""}):
             with self.assertRaisesRegex(RuntimeError, "persistent PostgreSQL"):
-                create_app({"TESTING": True, "DATABASE": ":memory:"})
+                create_app(
+                    {
+                        "TESTING": True,
+                        "DATABASE": ":memory:",
+                        "DATABASE_URL": "",
+                    }
+                )
 
-    def test_postgres_batch_insert_uses_cursor_executemany(self):
-        class FakeCursor:
-            def executemany(self, query, parameters):
-                self.query = query
-                self.parameters = list(parameters)
-
-            def close(self):
-                self.closed = True
-
+    def test_query_uses_postgres_placeholders_when_configured(self):
         class FakeConnection:
-            def cursor(self):
-                self.created_cursor = FakeCursor()
-                return self.created_cursor
+            def execute(self, query, parameters):
+                self.query = query
+                self.parameters = parameters
+                return self
 
         connection = FakeConnection()
         with self.app.app_context():
             self.app.config["DATABASE_URL"] = "postgresql://test"
-            execute_many(connection, "INSERT INTO test VALUES (?)", [(1,), (2,)])
+            execute_query(connection, "SELECT ? AS value", (1,))
 
-        self.assertEqual(
-            connection.created_cursor.query, "INSERT INTO test VALUES (%s)"
+        self.assertEqual(connection.query, "SELECT %s AS value")
+        self.assertEqual(connection.parameters, (1,))
+
+    def test_initialization_preserves_existing_legacy_tables(self):
+        with closing(sqlite3.connect(self.database_path)) as connection:
+            connection.executescript(
+                """
+                CREATE TABLE beers (name TEXT NOT NULL);
+                CREATE TABLE contact_messages (name TEXT NOT NULL);
+                INSERT INTO beers (name) VALUES ('old catalog record');
+                INSERT INTO contact_messages (name) VALUES ('old contact record');
+                """
+            )
+
+        create_app(
+            {
+                "TESTING": True,
+                "DATABASE": str(self.database_path),
+                "DATABASE_URL": "",
+            }
         )
-        self.assertEqual(connection.created_cursor.parameters, [(1,), (2,)])
-        self.assertTrue(connection.created_cursor.closed)
+
+        with closing(sqlite3.connect(self.database_path)) as connection:
+            self.assertEqual(
+                connection.execute("SELECT name FROM beers").fetchone()[0],
+                "old catalog record",
+            )
+            self.assertEqual(
+                connection.execute("SELECT name FROM contact_messages").fetchone()[0],
+                "old contact record",
+            )
+            self.assertIsNotNone(
+                connection.execute(
+                    "SELECT name FROM sqlite_master WHERE name='service_requests'"
+                ).fetchone()
+            )
 
 
 if __name__ == "__main__":
